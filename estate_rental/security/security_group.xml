@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE xml>
+<odoo>
+    <data>
+        <record model="ir.module.category" id="category_rental_app_group">
+           <field name="name">Rental Sales Group</field>
+           <field name="description">Rental Sales ERP</field>
+           <field name="sequence">33</field>
+        </record>
+
+        <record id="rental_officer" model="res.groups">
+            <field name="name">Rental Officer</field>
+            <field name="category_id" ref="category_rental_app_group"/>
+             <field name="users" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="rental_manager" model="res.groups">
+            <field name="name">Rental Manager</field>
+            <field name="category_id" ref="category_rental_app_group"/>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+        </record>
+ 
+    </data>
+</odoo>

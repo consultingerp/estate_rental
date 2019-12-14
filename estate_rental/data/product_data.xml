@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1"> 
+        <record id="product_rental_data" model="product.template">
+            <field name="name">Shop AA1</field>
+            <field name="standard_price">100000.0</field>
+            <field name="list_price">100000.0</field>
+            <field name="type">service</field> 
+            <field name="uom_id" ref="product.product_uom_unit"/>
+            <field name="uom_po_id" ref="product.product_uom_unit"/>
+            <field name="default_code">Shop AA1</field>
+            <field name="is_rent">1</field>
+            <field name="status">Available</field>
+        </record>
+
+     </data>
+</odoo>

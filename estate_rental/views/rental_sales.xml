@@ -1,0 +1,608 @@
+<?xml version="1.0"?>
+<odoo>
+
+       <data>
+
+
+        <record model="ir.ui.view" id="account_rental_inherit" >
+                <field name="name">account.payment</field>
+                <field name="model">account.payment</field>
+                <field name="inherit_id" ref="account.view_account_payment_form" />
+                <field name="arch" type="xml">
+
+                    <xpath expr="//field[@name='amount']" position="before">
+                               <field name="bank"/>
+                    </xpath>
+
+                </field>
+            
+        </record>
+
+
+                <record model="ir.ui.view" id="view_account_estate_rental_form">
+                    <field name="name">estate.rental.form</field>
+                    <field name="model">estate.rental</field>
+                    <field eval="25" name="priority"/>
+                    <field name="arch" type="xml">
+                    <form string="Rentals form">
+                        <header>
+                            <button name="confirm_rent_request" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer" string="Confirm" type="object" icon="fa-registered" class="btn-highlight" attrs="{'invisible':[('state','not in',['Draft'])]}"/>
+                            <button name="create_invoice" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer" string="Create Invoice" type="object" icon="fa-registered" class="btn-highlight" attrs="{'invisible':[('state','not in',['Payment'])]}"/>
+                            
+                            <field name="state" widget="statusbar" statusbar_visible="Draft,Payment,Rented,Done"/> 
+                        </header>
+                    <sheet>
+                    <div class="oe_button_box" name="button_box">
+                    <button name="generate_receipt" 
+                            string = "Invoices / Payments" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            icon="fa-shirtsinbulk" 
+                            groups="base.group_system,account.group_account_manager,estate_rental.rental_officer">
+                    </button> 
+                        <button name="check_service_expiry" 
+                            string = "Check Service Expiry" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            icon="fa-shirtsinbulk" 
+                            groups="base.group_system,account.group_account_manager,estate_rental.rental_officer">
+                        </button> 
+                    </div> 
+                    <div class="oe_title"> 
+                        <h3>Customer:  
+                            <field name="customer" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True,'limit': 1}"
+                                                    attrs="{'required':[('state','=','Draft')],'readonly':[('state','!=','Draft')]}"/>
+                        </h3><P/>
+                    </div> 
+                    <group>
+                        <group>
+                            <field name="code" readonly="1"/>
+                            <field name="date"/>
+                            <!-- <field name="branch_id" options="{&quot;no_open&quot;: True,'no_quick_create':True,'no_create_edit':True,'limit': 1}"/> -->
+                        </group>
+                        <group>
+                             <field name="outstanding_ids"
+                             widget="many2many_tags"
+                             invisible="1"/>
+                            <field name="invoice_id" readonly = "1" string ="Invoices"/>
+                            <field name="total_amount"/>
+                            <field name="total_outstanding" readonly="0"/> 
+                        </group>
+                        
+                    </group>
+                    <div class="oe_right">
+                        <button name="view_outstandings" 
+                                string = "View Services Outstandings" 
+                                type="object" 
+                                class="oe_highlight" 
+                                icon="fa-shirtsinbulk" 
+                                groups="base.group_system,account.group_account_manager,estate_rental.rental_officer">
+                        </button> 
+                    </div>
+                    <!-- class="col-xs-6 pull-right text-right" -->
+                    <notebook colspan="4"> 
+                        <page name="rental_item" string="Rental Items">
+                            <field name="rental_line" context="{'default_customer': customer}">
+                            <!-- attrs="{'required':[('state','=','Draft')],'readonly':[('state','not',['Draft','Done'])]}"  -->
+                            
+                              <tree string="Rental items" editable="bottom">
+                                <field name="product_id" required="1"/>
+                                <!-- <field name="status" required="0" readonly="1"/> -->
+                                <field name="rental_price" required="1"/>
+                                <field name="day_count" required="1"/>
+                                <field name="rental_period" required="1"/>
+                                <field name="unit" required="1"/>
+                                <field name="start_date" required="1"/>
+                                <field name="end_date" readonly="0"/>
+                                <field name="extend" required="0"/>
+                                 <!-- attrs="{'required':[('state','=','Draft')],'readonly':[('state','not',['Draft','Done'])]}"/>  -->
+
+                                <field name="total_amount"/>
+                                <button name="check_expiry_and_extend" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer" string="Check" type="object" icon="fa-registered" class="oe_highlight"/>
+
+
+                              </tree>
+                            </field>
+                             
+                         </page>
+
+                         <page name="service_item" string="Services">
+                            <field name="service_item"
+                            context="{'default_customer': customer}" >
+                            
+                              <tree string="Services" editable="bottom">
+                                <field name="product_id" required="1"/>
+                                <field name="rental_price" required="1"/>
+                                <field name="day_count" required="1"/>
+                                <field name="rental_period" required="1"/>
+                                <field name="unit" required="1"/>
+                                <field name="start_date" required="1"/>
+                                <field name="end_date" readonly="0"/>
+                            
+                                <field name="total_amount"/>
+                                <button name="check_service_expiry" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer" string="Check" type="object" icon="fa-registered" class="btn-primary"/>
+
+
+                              </tree>
+                            </field>
+                             
+                         </page>
+                        <page name="payment_rental" string="Payments">
+                            <field name="payment_ids" readonly ="1">
+                              <p style="color: red;">* See All Payments</p>
+                              <tree string="Payments" editable="bottom">
+                                <field name="name" style="color: blue;"/>
+                                <field name="journal_id"/> 
+                                <field name="amount"/>
+                                <field name="payment_date"/>
+                               
+                              </tree>
+                            </field>
+                             
+                         </page>
+                    </notebook>
+                </sheet>
+               
+                </form>
+               </field>
+            </record>
+
+
+       <record id="estate_rental_tree" model="ir.ui.view">
+            <field name="name">Rental List</field>
+            <field name="model">estate.rental</field>
+            <field name="arch" type="xml">
+                <tree string="Rental Records"> 
+                    
+                    <field name="customer"/>
+                    <field name="date"/>
+                    <field name="total_amount"/>
+                    <field name="total_outstanding"/>
+                    <field name="state"/>
+
+                </tree>
+            </field>
+        </record>
+
+    <record model="ir.ui.view" id="est_rental_search">
+       <field name="name">estate.rental.search</field>
+            <field name="model">estate.rental</field>
+		    <field name="arch" type="xml">
+				 <search string="Search Rentals">  
+                        
+                        <field name="customer"/>
+
+                        <field name="date"/>
+
+                        <field name="invoice_id"/>
+                         <!-- <field name="branch_id"/> -->
+                          <field name="total_amount"/>
+                        <field name="state"/>
+                       
+					 <group expand="0" string="Group By">
+				       <filter string="Customer" icon="terp-personal" domain="[]" context="{'group by':'customer'}" /> 
+                       <filter string="Date" icon="terp-personal" domain="[]" context="{'group by':'date'}" />
+                      
+                    </group>
+			  </search>
+		 	</field>
+	  </record>
+
+      
+        <record model="ir.ui.view" id="estate_rental_calendar">
+            <field name="name">estate.rental.calendar</field>
+            <field name="model">estate.rental</field>
+            <field name="priority" eval="2"/>
+            <field name="arch" type="xml">
+                <calendar string="Calendar View" date_start="date" color="customer">
+                    <field name="customer"/>
+                    <field name="total_amount" widget="monetary"/>
+                    <!-- <field name="branch_id"/> -->
+                </calendar>
+            </field>
+        </record>
+
+
+        
+           <record id="rental_product_line_form" model="ir.ui.view">
+                    <field name="name">rent.product.line</field>
+                     <field name="model">rent.product.line</field>
+                    <field eval="25" name="priority"/>
+                    <field name="arch" type="xml">
+                    <form string="Rental Line Records">
+                        <header>
+                            <field name="status" widget="statusbar" statusbar_visible="Available,Occupied"/> 
+                        </header>
+                    <sheet>
+                    
+                    <div class="oe_title"> 
+                        <h1>  
+                            <field name="code"/>
+                        </h1>
+                    </div> 
+                    <group>
+                        <group>
+                            <field name="customer"/>
+                            <field name="product_id"/>
+                            <div class="oe_inline"> 
+                                <b> Price:  </b> <field name="rental_price"/><b> Per </b> <field name="rental_period"/>  <P> <b>Duration: </b><field name="day_count" string="Duration" required="1"/></P>
+                            </div>  
+                        </group>
+                        <group>
+                            <field name="start_date" invisible="0"/>
+                             <field name="end_date" invisible="0"/>
+                            <field name="total_amount"/>
+                            <field name="balance"/>
+                                <field name="extend"/>
+
+                        </group>
+                    </group>
+                   
+                </sheet>
+               
+                </form>
+               </field>
+            </record>
+
+
+       <record id="rental_product_tree" model="ir.ui.view">
+            <field name="name">rent.product.line</field>
+            <field name="model">rent.product.line</field>
+            <field name="arch" type="xml">
+                <tree string="Rental Product"> 
+                    <field name="code"/>
+                    <field name="product_id"/>
+                    <field name="start_date" invisible="0"/>
+                    <field name="end_date" invisible="0"/>
+                    <field name="rental_price"/>
+                    <field name="status"/>
+                    <field name="unit" string='Unit Rental'/>
+                    <field name="total_amount"/>
+
+
+
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_estate_rental_pivot">
+            <field name="name">rent.product.line.pivot</field>
+            <field name="model">rent.product.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Estate Rental" display_quantity="false">
+                <field name="create_date" interval="month" type="row"/>
+                <field name="product_id" type="row"/> 
+                <field name="unit" type="col"/>
+
+                <field name="rental_price" type="measure"/>
+                        <field name="total_amount" type="measure"/>
+                            <field name="balance" type="measure"/>
+                        <field name="unit" type="measure"/>
+                    
+
+                </pivot>
+            </field>
+        </record>
+
+        
+
+
+    <record model="ir.ui.view" id="rentalline_search">
+       <field name="name">rent.product.line</field>
+            <field name="model">rent.product.line</field>
+		    <field name="arch" type="xml">
+				 <search string="Rental Line">  
+                        
+                        <field name="customer"/>
+                        <field name="start_date" invisible="0"/>
+                        <field name="end_date" invisible="0"/>
+                        <field name="rental_price"/>
+                        <field name="status"/>
+
+                       
+					 <group expand="0" string="Group By">
+				       <filter string="Name" icon="terp-personal" domain="[]" context="{'group by':'customer'}" />
+					   <filter string="Status" icon="terp-personel" domain="[('status', 'in', ['Available', 'Occupied'])]" context="{'group by':'status'}" />
+                       <filter string="Date" icon="terp-personal" domain="[]" context="{'group by':'create_date'}" />
+                        <filter string="Start Date" icon="terp-personal" domain="[]" context="{'group by':'start_date'}" />
+                         <filter string="End Date" icon="terp-personal" domain="[]" context="{'group by':'end_date'}" />
+                      
+                    </group>
+			  </search>
+		 	</field>
+	  </record>
+
+        <record model="ir.ui.view" id="rental_product_calendar">
+            <field name="name">rent.product.line.calendar</field>
+            <field name="model">rent.product.line</field>
+            <field name="priority" eval="2"/>
+            <field name="arch" type="xml">
+                <calendar string="Calendar View" date_start="create_date">
+                    <field name="product_id"/>
+                    <field name="create_date"/>
+                    
+                </calendar>
+            </field>
+        </record>
+
+        <record id="rental_outstanding_line_form" model="ir.ui.view">
+                    <field name="name">rent.outstanding.record</field>
+                     <field name="model">rent.outstanding.record</field>
+                    <field eval="25" name="priority"/>
+                    <field name="arch" type="xml">
+                    <form string="Rental Outstanding Records">
+                        <header>
+                            <!-- <field name="status" widget="statusbar" statusbar_visible="Available,Occupied"/>  -->
+                        </header>
+                    <sheet>
+                    <div class="oe_button_box" name="button_box">
+                    <button name="generate_receipt" 
+                            string = "Invoices / Payments" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            icon="fa-shirtsinbulk" 
+                            groups="base.group_system,account.group_account_manager,estate_rental.rental_officer">
+                    </button> 
+                    </div>
+                    <div class="oe_title"> 
+                        <h1>  
+                            <field name="code"/>
+                        </h1>
+                    </div> 
+                    <group>
+                        <group>
+                            <field name="ref_id" readonly="1"/>
+                            <field name="parent_ref_id" readonly="1"/>
+                            <field name="customer"/>
+                            <field name="product_id"/>
+                            <field name="rental_period"/>
+                            <!-- <div class="oe_inline"> 
+                                <b> Price:  </b> <field name="rental_price"/><b> Per </b> <field name="rental_period"/>  <P> <b>Duration: </b><field name="day_count" string="Duration" required="1"/></P>
+                            </div>   -->
+                        </group>
+                        <group>
+                            <field name="last_paid_date" invisible="0"/>
+                             <field name="expired_date" invisible="0"/>
+                            <field name="amount_to_pay"/>
+                            <field name="invoice_id"/>
+                        </group>
+                    </group>
+                </sheet>
+                </form>
+               </field>
+        </record>
+
+
+       <record id="rental_outstanding_tree" model="ir.ui.view">
+            <field name="name">rent.outstanding.record</field>
+            <field name="model">rent.outstanding.record</field>
+            <field name="arch" type="xml">
+                <tree string="Rental Outstandings"> 
+                    <field name="code"/>
+                    <field name="customer"/>
+                    <field name="product_id"/>
+                    <field name="last_paid_date" invisible="0"/>
+                    <field name="expired_date"/>
+                    <field name="amount_to_pay"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="rental_outstanding_search">
+       <field name="name">rent.outstanding.record</field>
+            <field name="model">rent.outstanding.record</field>
+		    <field name="arch" type="xml">
+				 <search string="Rental Outstanding Search">  
+                        
+                        <field name="customer"/>
+                        <field name="last_paid_date" invisible="0"/>
+                        <field name="expired_date" invisible="0"/>
+                        <field name="amount_to_pay"/>
+
+                       
+					 <group expand="0" string="Group By">
+				       <filter string="Customer Name" icon="terp-personal" domain="[]" context="{'group by':'customer'}" />
+                       <filter string="Date" icon="terp-personal" domain="[]" context="{'group by':'create_date'}" />
+                        <filter string="Last Paid Date" icon="terp-personal" domain="[]" context="{'group by':'last_paid_date'}" />
+                         <filter string="End Date" icon="terp-personal" domain="[]" context="{'group by':'expired_date'}" />
+                      
+                    </group>
+			  </search>
+		 	</field>
+	  </record>
+
+
+        <record model="ir.ui.view" id="inherit_product_viewform" >
+            <field name="name">product.template</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='list_price']" position="after">
+                           <field name="is_rent" string="Is Rent"/>
+                                <field name="unit" string="Units Available" attrs="{'required':[('is_rent','=',True)]}"/>
+                           <field name="status" string="Status" attrs="{'required':[('is_rent','=',True)]}"/>
+ 
+                </xpath> 
+            </field>
+        </record> 
+    <act_window id="rental_product_actions"
+        name="Products Rental"
+        res_model="product.template"
+        domain="[('is_rent', '=', True)]"
+        view_mode="tree,form"
+        />
+
+
+    <record id="rental_product_line_actions" model="ir.actions.act_window">
+        <field name="name">Rental items</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">rent.product.line</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,pivot</field>
+        
+        <field name="search_view_id" eval="False"/>
+        <field name="view_id" eval="False"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to Add.
+          </p><p>
+           .
+          </p>
+        </field>
+    </record>
+
+
+ 
+
+    <record id="estate_rental_main_actions" model="ir.actions.act_window">
+        <field name="name">Rental Management</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">estate.rental</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,calendar</field>
+        
+        <field name="search_view_id" eval="False"/> <!-- Force empty -->
+        <field name="view_id" eval="False"/> <!-- Force empty -->
+        <field name="help" type="html">
+
+          <p class="oe_view_nocontent_create">
+            Click to Add.
+          </p><p>
+           .
+          </p>
+        </field>
+    </record>
+
+    <record id="rental_outstanding_actions" model="ir.actions.act_window">
+        <field name="name">Rental Outstandings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">rent.outstanding.record</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" eval="False"/>
+        <field name="view_id" eval="False"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to Add Outstanding.
+          </p><p>
+           .
+          </p>
+        </field>
+    </record>
+     
+
+    <record model="ir.ui.view" id="view_payment_pivot">
+            <field name="name">account.payment.line.pivot</field>
+            <field name="model">account.payment</field>
+            <field name="arch" type="xml">
+                <pivot string="Payments" display_quantity="false">
+                    <field name="payment_date" interval="month" type="row"/>
+                    <field name="partner_id" type="row"/> 
+                    <field name="amount" type="measure"/>
+                    
+                </pivot>
+            </field>
+        </record>
+        <!-- <act_window id="action_account_payments_rental"
+        name="Payments"
+        res_model="product.template"
+        domain="[('is_rent', '=', True)]"
+        view_mode="tree,form"
+        /> -->
+
+        <record id="action_account_payments_rental" model="ir.actions.act_window">
+            <field name="name">Payments</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="domain">[('rent', '=', True)]</field>
+            <field name="view_id" ref="account.view_account_payment_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                  Click to register a payment
+                </p><p>
+                  Payments are used to register liquidity movements (send, collect or transfer money).
+                  You can then process those payments by your own means or by using installed facilities.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_account_payments" model="ir.actions.act_window">
+            <field name="name">Payments</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="context">{'default_payment_type': 'inbound', 'default_partner_type': 'customer'}</field>
+            <field name="domain">[('partner_type', '=', 'customer')]</field>
+            <field name="view_id" ref="account.view_account_payment_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                  Click to register a payment
+                </p><p>
+                  Payments are used to register liquidity movements (send, collect or transfer money).
+                  You can then process those payments by your own means or by using installed facilities.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_account_payments_payable" model="ir.actions.act_window">
+            <field name="name">Payments</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph,pivot</field>
+            <field name="context">{'default_payment_type': 'outbound', 'default_partner_type': 'supplier'}</field>
+            <field name="domain">[('partner_type', '=', 'supplier')]</field>
+            <field name="view_id" ref="account.view_account_supplier_payment_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                  Click to register a payment
+                </p><p>
+                  Payments are used to register liquidity movements (send, collect or transfer money).
+                  You can then process those payments by your own means or by using installed facilities.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id ="estate_rentals_menu" name="Rentals" sequence="8" action="estate_rental_main_actions" web_icon="estate_rental,static/description/icon.png"/>
+          <menuitem id ="sub_menu_estate_rental" name="Rentages" parent="estate_rentals_menu" sequence="1" groups="base.group_system,estate_rental.rental_officer,estate_rental.rental_manager"/>
+               <menuitem id ="sub_menu_rent_mgt" name="Create Rent" sequence="1" parent="sub_menu_estate_rental" action="estate_rental_main_actions" groups="base.group_system,estate_rental.rental_officer,estate_rental.rental_manager"/>               
+               <menuitem id ="sub_menu_rent_items" name="Rent Items" sequence="2" parent="sub_menu_estate_rental" action="rental_product_line_actions" groups="base.group_system,estate_rental.rental_officer,estate_rental.rental_manager"/>
+               <menuitem id ="sub_menu_rent_payment" name="Payments" sequence="3" parent="sub_menu_estate_rental" action = "action_account_payments_rental" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer,estate_rental.rental_manager"/>
+              <menuitem id ="sub_menu_rent_outstanding" name="Outstanding" sequence="3" parent="sub_menu_estate_rental" action = "rental_outstanding_actions" groups="base.group_system,account.group_account_manager,estate_rental.rental_officer,estate_rental.rental_manager"/>
+                
+          <menuitem id = "menu_rental_item_config" name="Configuration" parent="estate_rentals_menu" sequence="7" groups="base.group_system,estate_rental.rental_manager"/>
+              <menuitem id ="sub_menu_rental_config" name="Set Rental Product" sequence="1" parent="menu_rental_item_config" action="rental_product_actions"/>
+ 
+    <!-- <record id="action_commission_wizard" model="ir.actions.act_window">
+        <field name="name">Create Commission Worksheet</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">commission.wizards</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field> 
+        <field name="target">new</field>
+        <field name="multi">True</field>
+    </record>
+ 
+
+
+    <record id="action_create_sales_worksheet" model="ir.actions.server">
+                <field name="name">Create Worksheet</field>
+                <field name="model_id" ref="model_commission_model"/>
+                <field name="state">code</field>
+                <field name="condition">True</field>
+                <field name="code">
+                    if context.get('active_model') == 'commission.model' and context.get('active_ids'):
+                    if object:env['commission.model'].function_create_worksheet()
+                     
+                </field>
+        </record>
+
+        <record id="server_for_worksheet_commission" model="ir.values">
+            <field eval="'client_action_multi'" name="key2"/>
+            <field eval="'commission.model'" name="model"/>
+            <field name="name">Create Worksheet</field>
+            <field eval="'ir.actions.server,%d'%action_create_sales_worksheet" name="value"/>
+        </record> --> 
+ </data>
+ </odoo>

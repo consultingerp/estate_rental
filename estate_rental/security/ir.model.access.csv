@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_id_estate_rental,access_name_estate_rental,estate_rental.model_estate_rental,,1,1,1,1
+access_id_rent_product_line,access_namerent_product_line,rent_product_line.model_rent_product_line,,1,1,1,1
+access_id_account_payment_rent,access_name_account_payment_rent,account.model_account_payment,estate_rental.rental_officer,1,1,1,1
+access_id_account_payment_rent2,access_name_account_payment_rent2,account.model_account_payment,estate_rental.rental_manager,1,1,1,1
